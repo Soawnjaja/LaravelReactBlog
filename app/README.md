@@ -7,7 +7,34 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## О проекте (Laravel + React)
+
+Фронтенд собран на React (Vite) внутри того же репозитория. SPA рендерится в `resources/views/app.blade.php`, маршрутизация клиента — `resources/js/routes.jsx`.
+
+### Что реализовано
+- Список статей (заголовок, дата, краткое содержание)
+- Просмотр статьи с комментариями и формой добавления
+- Создание новой статьи (без WYSIWYG — ввод обычного текста)
+
+### Что значит «без WYSIWYG»
+Текст вводится в обычное `<textarea>` без визуального редактора (никаких панелей форматирования). Отправляется как `content: string`.
+
+### Маршруты API
+- `GET /api/articles` — список статей
+- `GET /api/articles/{id}` — статья с комментариями
+- `POST /api/articles` — создать статью `{ title, content }`
+- `POST /api/articles/{id}/comments` — добавить комментарий `{ author_name, content }`
+
+Исходники: `app/Http/Controllers/Api/ArticleController.php`, `app/Http/Controllers/Api/CommentController.php`, `routes/api.php`.
+
+### Запуск локально (Docker-компоуз уже используется для backend)
+1. В контейнере/хосте с Node:
+   - `cd app`
+   - `npm install`
+   - `npm run dev`
+2. Бэкенд Laravel (см. ваши docker-compose/nginx): откройте `http://localhost` и убедитесь, что рендерится SPA.
+
+Vite вход: `resources/js/app.jsx` (см. `vite.config.js`). Сервер обновления включён.
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
