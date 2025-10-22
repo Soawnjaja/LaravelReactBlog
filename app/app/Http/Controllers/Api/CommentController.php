@@ -23,15 +23,3 @@ class CommentController extends Controller
         return response()->json($comment, Response::HTTP_CREATED);
     }
 }
-
-<?php
-
-namespace App\Http\Controllers\Api;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-class CommentController extends Controller
-{
-    //
-}
