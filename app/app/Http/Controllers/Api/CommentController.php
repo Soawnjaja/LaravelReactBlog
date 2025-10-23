@@ -3,23 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CommentStoreRequest;
+use App\Http\Resources\CommentResource;
 use App\Models\Article;
-use App\Models\Comment;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, int $articleId)
+    public function store(CommentStoreRequest $request, int $articleId)
     {
         $article = Article::findOrFail($articleId);
 
-        $validated = $request->validate([
-            'author_name' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-        ]);
-
-        $comment = $article->comments()->create($validated);
-        return response()->json($comment, Response::HTTP_CREATED);
+        $comment = $article->comments()->create($request->validated());
+        return (new CommentResource($comment))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 }

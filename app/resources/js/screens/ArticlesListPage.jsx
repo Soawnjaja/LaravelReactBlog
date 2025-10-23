@@ -11,7 +11,13 @@ export const ArticlesListPage = () => {
         const load = async () => {
             try {
                 const res = await axios.get('/api/articles');
-                setArticles(res.data);
+                const payload = Array.isArray(res.data)
+                    ? res.data
+                    : (Array.isArray(res.data?.data) ? res.data.data : []);
+                setArticles(payload);
+                if (!Array.isArray(res.data) && !Array.isArray(res.data?.data)) {
+                    console.warn('Unexpected articles payload shape', res.data);
+                }
             } catch (e) {
                 setError('Не удалось загрузить статьи');
             } finally {

@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ArticleStoreRequest;
+use App\Http\Resources\ArticleResource;
 use App\Models\Article;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ArticleController extends Controller
@@ -12,24 +13,21 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::query()->latest()->get(['id', 'title', 'content', 'created_at']);
-        return response()->json($articles);
+        return ArticleResource::collection($articles);
     }
 
     public function show(int $id)
     {
         $article = Article::with('comments')->findOrFail($id);
-        return response()->json($article);
+        return new ArticleResource($article);
     }
 
-    public function store(Request $request)
+    public function store(ArticleStoreRequest $request)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-        ]);
-
-        $article = Article::create($validated);
-        return response()->json($article, Response::HTTP_CREATED);
+        $article = Article::create($request->validated());
+        return (new ArticleResource($article))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 }
 
