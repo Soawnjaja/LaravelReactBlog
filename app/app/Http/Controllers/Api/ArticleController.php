@@ -6,13 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ArticleStoreRequest;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ArticleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $articles = Article::query()->latest()->get(['id', 'title', 'content', 'created_at']);
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 10;
+
+        $articles = Article::query()
+            ->latest()
+            ->paginate($perPage, ['id', 'title', 'content', 'created_at'])
+            ->appends($request->only('per_page'));
+
         return ArticleResource::collection($articles);
     }
 
@@ -28,6 +36,20 @@ class ArticleController extends Controller
         return (new ArticleResource($article))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
+    }
+
+    public function update(ArticleStoreRequest $request, int $id)
+    {
+        $article = Article::findOrFail($id);
+        $article->update($request->validated());
+        return new ArticleResource($article->fresh());
+    }
+
+    public function destroy(int $id)
+    {
+        $article = Article::findOrFail($id);
+        $article->delete();
+        return response()->noContent();
     }
 }
 

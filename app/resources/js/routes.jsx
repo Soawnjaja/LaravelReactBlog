@@ -5,15 +5,15 @@ import { ArticlePage } from './screens/ArticlePage';
 import { NewArticlePage } from './screens/NewArticlePage';
 
 export const AppRouter = () => (
-    <div className="container" style={{ maxWidth: 900, margin: '0 auto', padding: 16 }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1>Блог</h1>
-            <nav style={{ display: 'flex', gap: 12 }}>
-                <Link to="/">Статьи</Link>
-                <Link to="/new">Новая статья</Link>
+    <div className="container">
+        <header className="flex items-center justify-between py-6 border-b border-gray-200">
+            <h1 className="text-3xl font-bold">Блог</h1>
+            <nav className="flex gap-4">
+                <Link className="link" to="/">Статьи</Link>
+                <Link className="link" to="/new">Новая статья</Link>
             </nav>
         </header>
-        <main style={{ marginTop: 24 }}>
+        <main className="mt-6">
             <Routes>
                 <Route path="/" element={<ArticlesListPage />} />
                 <Route path="/articles/:id" element={<ArticlePage />} />

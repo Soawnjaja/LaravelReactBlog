@@ -13,14 +13,6 @@ class DemoSeeder extends Seeder
      */
     public function run(): void
     {
-        $articles = [
-            ['title' => 'Первая статья', 'content' => 'Контент первой статьи'],
-            ['title' => 'Вторая статья', 'content' => 'Контент второй статьи'],
-            ['title' => 'Третья статья', 'content' => 'Контент третьей статьи'],
-        ];
-
-        foreach ($articles as $data) {
-            Article::create($data);
-        }
+        Article::factory()->count(100)->create();
     }
 }

@@ -6,6 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ArticleStoreRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'title' => $this->input('title', $this->input('name')),
+            'content' => $this->input('content', $this->input('message')),
+        ]);
+    }
+
     public function authorize(): bool
     {
         return true;

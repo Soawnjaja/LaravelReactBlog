@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 export const ArticlePage = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [article, setArticle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [commentAuthor, setCommentAuthor] = useState('');
     const [commentContent, setCommentContent] = useState('');
     const [sending, setSending] = useState(false);
+    const [removing, setRemoving] = useState(false);
 
     useEffect(() => {
         const load = async () => {
             try {
                 const res = await axios.get(`/api/articles/${id}`);
-                setArticle(res.data);
+                setArticle(res.data?.data);
             } catch (e) {
                 setError('Не удалось загрузить статью');
             } finally {
@@ -34,7 +36,8 @@ export const ArticlePage = () => {
                 author_name: commentAuthor,
                 content: commentContent,
             });
-            setArticle(prev => ({ ...prev, comments: [...(prev.comments || []), res.data] }));
+            const created = res.data?.data;
+            setArticle(prev => ({ ...prev, comments: [...(prev?.comments || []), created] }));
             setCommentAuthor('');
             setCommentContent('');
         } catch (e) {
@@ -44,15 +47,38 @@ export const ArticlePage = () => {
         }
     };
 
-    if (loading) return <div>Загрузка...</div>;
-    if (error) return <div style={{ color: 'red' }}>{error}</div>;
+    const removeArticle = async () => {
+        if (!window.confirm('Удалить статью? Отменить действие будет невозможно.')) return;
+        setRemoving(true);
+        try {
+            await axios.delete(`/api/articles/${id}`);
+            navigate('/');
+        } catch (e) {
+            alert('Не удалось удалить статью');
+        } finally {
+            setRemoving(false);
+        }
+    };
+
+    if (loading) return <div className="text-gray-500">Загрузка...</div>;
+    if (error) return <div className="text-red-600">{error}</div>;
     if (!article) return null;
 
     return (
         <div>
-            <h2>{article.title}</h2>
-            <small style={{ color: '#666' }}>{new Date(article.created_at).toLocaleString()}</small>
-            <p style={{ marginTop: 12, whiteSpace: 'pre-line' }}>{article.content}</p>
+            <div className="flex items-center justify-between gap-3">
+                <div>
+                    <h2 className="mb-1 text-2xl font-semibold">{article.title}</h2>
+                    <small className="text-gray-500">{article.created_at}</small>
+                </div>
+                <div className="flex gap-2">
+                    <button onClick={() => navigate('/')} className="px-3 py-1.5 border border-gray-300 rounded-md">К списку</button>
+                    <button onClick={removeArticle} disabled={removing} className="px-3 py-1.5 border rounded-md border-red-600 text-red-600 disabled:opacity-60">
+                        {removing ? 'Удаление…' : 'Удалить'}
+                    </button>
+                </div>
+            </div>
+            <p className="mt-3 whitespace-pre-line">{article.content}</p>
 
             <section style={{ marginTop: 24 }}>
                 <h3>Комментарии</h3>
@@ -60,30 +86,32 @@ export const ArticlePage = () => {
                     <p>Пока нет комментариев</p>
                 ) : (
                     <ul style={{ paddingLeft: 16 }}>
-                        {article.comments.map(c => (
-                            <li key={c.id} style={{ margin: '12px 0', borderBottom: '1px solid #eee', paddingBottom: 8 }}>
-                                <strong>{c.author_name}</strong>
-                                <div style={{ marginTop: 4 }}>{c.content}</div>
+                        {article.comments.map(comment => (
+                            <li key={comment.id} style={{ margin: '12px 0', borderBottom: '1px solid #eee', paddingBottom: 8 }}>
+                                <strong>{comment.author_name}</strong>
+                                <div style={{ marginTop: 4 }}>{comment.content}</div>
                             </li>
                         ))}
                     </ul>
                 )}
             </section>
 
-            <form onSubmit={submitComment} style={{ marginTop: 24, display: 'grid', gap: 12 }}>
+            <form onSubmit={submitComment} className="mt-6 grid gap-3">
                 <input
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     type="text"
                     placeholder="Ваше имя"
                     value={commentAuthor}
                     onChange={(e) => setCommentAuthor(e.target.value)}
                 />
                 <textarea
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     rows={4}
                     placeholder="Ваш комментарий"
                     value={commentContent}
                     onChange={(e) => setCommentContent(e.target.value)}
                 />
-                <button type="submit" disabled={sending}>
+                <button type="submit" disabled={sending} className="px-3 py-1.5 border border-indigo-600 text-indigo-600 rounded-md disabled:opacity-60">
                     {sending ? 'Отправка...' : 'Добавить комментарий'}
                 </button>
             </form>

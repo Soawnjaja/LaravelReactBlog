@@ -19,7 +19,7 @@ export const NewArticlePage = () => {
         setSending(true);
         try {
             const res = await axios.post('/api/articles', { title, content });
-            navigate(`/articles/${res.data.id}`);
+            navigate(`/articles/${res.data?.data?.id}`);
         } catch (e) {
             setError('Не удалось создать статью');
         } finally {
@@ -28,24 +28,31 @@ export const NewArticlePage = () => {
     };
 
     return (
-        <form onSubmit={submit} style={{ display: 'grid', gap: 12 }}>
-            <h2>Новая статья</h2>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
+        <form onSubmit={submit} className="grid gap-3">
+            <h2 className="text-2xl font-semibold">Новая статья</h2>
+            {error && <div className="text-red-600">{error}</div>}
             <input
+                className="border border-gray-300 rounded-md px-3 py-2"
                 type="text"
                 placeholder="Заголовок"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
             />
             <textarea
+                className="border border-gray-300 rounded-md px-3 py-2"
                 rows={10}
                 placeholder="Содержимое (без WYSIWYG — просто текст)"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
             />
-            <button type="submit" disabled={sending}>
-                {sending ? 'Создание...' : 'Создать'}
-            </button>
+            <div className="flex gap-2">
+                <button type="submit" disabled={sending} className="px-3 py-1.5 border border-indigo-600 text-indigo-600 rounded-md disabled:opacity-60">
+                    {sending ? 'Создание...' : 'Создать'}
+                </button>
+                <button type="button" onClick={() => navigate('/')} disabled={sending} className="px-3 py-1.5 border border-gray-300 rounded-md">
+                    Отмена
+                </button>
+            </div>
         </form>
     );
 };

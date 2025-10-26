@@ -13,6 +13,7 @@ class ArticleResource extends JsonResource
             'title' => $this->title,
             'content' => $this->content,
             'created_at' => $this->created_at?->toISOString(),
+            'created_at_human' => $this->created_at?->translatedFormat('d.m.Y'),
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
         ];
     }

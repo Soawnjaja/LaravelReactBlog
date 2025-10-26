@@ -18,7 +18,18 @@ if [ ! -f "artisan" ]; then
     # Установка дополнительных пакетов
     composer require laravel/sanctum --no-interaction
 
-    # Генерация ключа и базовые команды
+    # Подготовка .env и автоконфиг для docker-compose
+    if [ ! -f ".env" ]; then
+        cp -n .env.example .env
+    fi
+    sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
+    sed -i 's/^DB_HOST=.*/DB_HOST=db/' .env
+    sed -i 's/^DB_PORT=.*/DB_PORT=3306/' .env
+    sed -i 's/^DB_DATABASE=.*/DB_DATABASE=myblog/' .env
+    sed -i 's/^DB_USERNAME=.*/DB_USERNAME=dbuser/' .env
+    sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=dbpass/' .env
+
+    # Генерация ключа приложения
     php artisan key:generate --no-interaction
 
     # Настройка прав доступа
@@ -28,4 +39,20 @@ if [ ! -f "artisan" ]; then
     echo "Laravel installation completed!"
 else
     echo "Laravel is already installed in $APP_DIR."
+
+    # Обновление .env под docker-compose даже для уже установленного проекта
+    if [ ! -f ".env" ]; then
+        cp -n .env.example .env
+    fi
+    sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
+    sed -i 's/^DB_HOST=.*/DB_HOST=db/' .env
+    sed -i 's/^DB_PORT=.*/DB_PORT=3306/' .env
+    sed -i 's/^DB_DATABASE=.*/DB_DATABASE=myblog/' .env
+    sed -i 's/^DB_USERNAME=.*/DB_USERNAME=dbuser/' .env
+    sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=dbpass/' .env
+
+    # Сгенерировать APP_KEY, если отсутствует
+    if ! grep -q '^APP_KEY=' .env || grep -q '^APP_KEY=$' .env; then
+        php artisan key:generate --no-interaction
+    fi
 fi

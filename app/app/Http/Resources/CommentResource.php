@@ -13,6 +13,7 @@ class CommentResource extends JsonResource
             'author_name' => $this->author_name,
             'content' => $this->content,
             'created_at' => $this->created_at?->toISOString(),
+            'created_at_human' => $this->created_at?->translatedFormat('d.m.Y'),
         ];
     }
 }
